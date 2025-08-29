@@ -1,0 +1,14 @@
+{
+  "name": "sr-transform-text",
+  "version": "1.0.0",
+  "description": "Adds a Gutenberg toolbar button that transforms the case selected text.",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "wp-scripts build",
+    "start": "wp-scripts start"
+  },
+  "author": "Steve Rudolfi",
+  "devDependencies": {
+    "@wordpress/scripts": "^27.0.0"
+  }
+}
