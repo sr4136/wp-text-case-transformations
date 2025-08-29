@@ -49,7 +49,7 @@ Let's say you copy and paste a lot of text. Need I say more than that? Well, you
 
 Gif:
 
-[![20250829_163818218](https://github.com/user-attachments/assets/cc6411f6-1e3c-4dee-b0be-e904a08f01d5)
+![20250829_163818218](https://github.com/user-attachments/assets/cc6411f6-1e3c-4dee-b0be-e904a08f01d5)
 
 # What else?
 ## Some fun things to point out:
