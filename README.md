@@ -57,6 +57,7 @@ Gif:
 
 ## Plans to update:
 - [ ] Modify [`titleCapsExceptions`](https://github.com/sr4136/wp-text-case-transformations/blob/main/src/string-prototypes.js#L1-L24) with a more complete list of articles, prepositions, and conjunctions.
+- [ ] I would like to take some time to learn [WordPress Playground](https://wordpress.org/playground/) so I can launch a demo of this easily.
 
 ## Things to look into:
 - [ ] As with the dragons above, WP/Gutenberg's methods of highlighting text to modify it can be tricky
