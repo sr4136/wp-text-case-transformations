@@ -20,7 +20,7 @@ Therefore should not be used in production, or really anyone besides me.
 # But why though?
 Let's say you copy and paste a lot of text. Need I say more than that? Well, you might get tired of manually adjusting the case of words. I wanted to do some investigating as to how far I could get to a simple toolbar item that would format the case of selected text against some predetermined rules.
 
-"Wait," you may say, "WordPress does this in the _Letter Case_ component in the _Typography panel_ of a block's _settings sidebar_." Why yes, it does, but:
+"Wait," you may say, "[WordPress does this](https://wordpress.com/support/text-transform/#change-letter-case) in the _Letter Case_ component in the _Typography panel_ of a block's _settings sidebar_." Why yes, it does, but:
 - That applies a CSS `text-transform` directly to the **entire** block.
 - Gif:
 ![20250829_162222553](https://github.com/user-attachments/assets/957dfb69-c3e3-460e-b746-c6f71f57f338)
