@@ -60,7 +60,7 @@ Gif:
 - [ ] I would like to take some time to learn [WordPress Playground](https://wordpress.org/playground/) so I can launch a demo of this easily.
 
 ## Things to look into:
-- [ ] As with the dragons above, WP/Gutenberg's methods of highlighting text to modify it can be tricky
+- [ ] As with the dragons above, WP/Gutenberg's methods of highlighting text to modify it can be tricky (maybe [WP_HTML_Tag_Processor](https://developer.wordpress.org/reference/classes/wp_html_tag_processor/) can help)
   - [ ] This plugin in its current state removes other formatting from the block because the method of replacement does not take into account the markup, only the text.
   - [ ] Necessitates a deep dive into WP/Gutenberg's method of selecting text/markup and modifying it
 - [ ] Modifying the text inside of a table block doens't work yet. Must inspect the different context and what methods are available when editing the content of a table cell.
