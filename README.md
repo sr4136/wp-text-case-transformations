@@ -41,7 +41,7 @@ Let's say you copy and paste a lot of text. Need I say more than that? Well, you
 [^1]: _Yes, there be dragons._
 
 
-# So what's the status?
+# What's the status?
 - This repo serves as a working installable WordPress plugin to demo the functionality. Upload & activate it as per any other downloadable plugin.
   - At the time of this writing, I was working with WordPress v6.8.2 & Gutenberg v21.5.0
   - The plugin uses [@wordpress/scripts](https://github.com/WordPress/gutenberg/blob/8ea3b396c28a2100c7446665f60cb47424cf9352/packages/scripts/README.md) for compiling.
