@@ -1,26 +1,33 @@
 import { BlockControls } from "@wordpress/block-editor";
 import { Dropdown, ToolbarButton, ToolbarGroup } from "@wordpress/components";
-import { registerFormatType } from "@wordpress/rich-text";
+import { insert, registerFormatType, remove, slice } from "@wordpress/rich-text";
 import toTitleCaps from "./string-prototypes.js";
 
 // Add the function to the String prototype
 String.prototype.toTitleCaps = toTitleCaps;
 
-const transformText = (value, event) => {
-  //   console.log("RUNS");
-  //   console.log(value);
-  //   console.log(event);
+/**
+ * Transform the currently selected RichText substring and keep it selected.
+ * Uses RichText slice/remove/insert so inline formats (e.g. links) are preserved.
+ */
+const transformText = (value, onChange, transformType) => {
+  // console.log("transformText called");
+  // console.log("Current RichText value:", value);
+  // console.log("Requested transform:", transformType);
 
-  // Get the block's ID.
-  const selectedBlockClientId = wp.data
-    .select("core/block-editor")
-    .getSelectedBlockClientId();
+  // Require a valid transform and a non-empty selection range.
+  if (
+    !transformType ||
+    value.start === undefined ||
+    value.end === undefined ||
+    value.start === value.end
+  ) {
+    return;
+  }
 
-  // Get the transform type.
-  const transformType = event.target.dataset.srTtt;
-
-  // Extract the substring to be transformed.
-  let transformedString = value.text.substring(value.start, value.end);
+  // Extract the selected rich text value so inline formats (like links) remain intact.
+  const selectedValue = slice(value, value.start, value.end);
+  let transformedString = selectedValue.text;
 
   if ("titlecaps" === transformType) {
     transformedString = transformedString.toTitleCaps();
@@ -32,20 +39,35 @@ const transformText = (value, event) => {
     transformedString = transformedString.toLowerCase();
   }
 
-  // Construct the new text with the transformed substring.
-  const newText =
-    value.text.substring(0, value.start) +
-    transformedString +
-    value.text.substring(value.end);
+  // Keep selected formatting metadata while swapping in transformed text.
+  const transformedSelectedValue = {
+    ...selectedValue,
+    text: transformedString,
+  };
 
-  // Run the update.
-  wp.data
-    .dispatch("core/block-editor")
-    .updateBlockAttributes(selectedBlockClientId, {
-      content: newText,
-    });
+  // Replace only the selected range in the full RichText value.
+  const valueWithoutSelection = remove(value, value.start, value.end);
+  const nextValue = insert(
+    valueWithoutSelection,
+    transformedSelectedValue,
+    value.start,
+    value.start
+  );
+
+  const selectionEnd = value.start + transformedString.length;
+
+  // Push updated value while restoring the transformed range selection.
+  onChange({
+    ...nextValue,
+    start: value.start,
+    end: selectionEnd,
+    activeFormats: value.activeFormats,
+  });
 };
 
+/**
+ * Toolbar dropdown UI for choosing a text case transformation.
+ */
 const TextTransformButton = ({ isActive, onChange, value }) => {
   return (
     <BlockControls>
@@ -59,30 +81,40 @@ const TextTransformButton = ({ isActive, onChange, value }) => {
               aria-expanded={isOpen}
             />
           )}
-          renderContent={() => (
+          renderContent={({ onClose }) => (
             <ToolbarGroup>
+              {/* Prevent focus steal on mousedown so selection remains available. */}
               <ToolbarButton
                 icon="editor-ltr"
-                data-sr-ttt="titlecaps"
                 title="Title Caps"
                 text="Title Caps"
-                onClick={(event) => transformText(value, event)}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={(_event) => {
+                  transformText(value, onChange, "titlecaps");
+                  onClose();
+                }}
                 isActive={isActive}
               />
               <ToolbarButton
                 icon="arrow-up-alt"
-                data-sr-ttt="uppercase"
                 title="Uppercase"
                 text="Uppercase"
-                onClick={(event) => transformText(value, event)}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={(_event) => {
+                  transformText(value, onChange, "uppercase");
+                  onClose();
+                }}
                 isActive={isActive}
               />
               <ToolbarButton
                 icon="arrow-down-alt"
-                data-sr-ttt="lowercase"
                 title="Lowercase"
                 text="Lowercase"
-                onClick={(event) => transformText(value, event)}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={(_event) => {
+                  transformText(value, onChange, "lowercase");
+                  onClose();
+                }}
                 isActive={isActive}
               />
             </ToolbarGroup>

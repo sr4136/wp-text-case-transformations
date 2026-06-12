@@ -2,11 +2,11 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./src/string-prototypes.js":
+/***/ "./src/string-prototypes.js"
 /*!**********************************!*\
   !*** ./src/string-prototypes.js ***!
   \**********************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
@@ -32,37 +32,37 @@ function toTitleCaps() {
 // Export the function
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (toTitleCaps);
 
-/***/ }),
+/***/ },
 
-/***/ "@wordpress/block-editor":
+/***/ "@wordpress/block-editor"
 /*!*************************************!*\
   !*** external ["wp","blockEditor"] ***!
   \*************************************/
-/***/ ((module) => {
+(module) {
 
 module.exports = window["wp"]["blockEditor"];
 
-/***/ }),
+/***/ },
 
-/***/ "@wordpress/components":
+/***/ "@wordpress/components"
 /*!************************************!*\
   !*** external ["wp","components"] ***!
   \************************************/
-/***/ ((module) => {
+(module) {
 
 module.exports = window["wp"]["components"];
 
-/***/ }),
+/***/ },
 
-/***/ "@wordpress/rich-text":
+/***/ "@wordpress/rich-text"
 /*!**********************************!*\
   !*** external ["wp","richText"] ***!
   \**********************************/
-/***/ ((module) => {
+(module) {
 
 module.exports = window["wp"]["richText"];
 
-/***/ })
+/***/ }
 
 /******/ 	});
 /************************************************************************/
@@ -84,6 +84,12 @@ module.exports = window["wp"]["richText"];
 /******/ 		};
 /******/ 	
 /******/ 		// Execute the module function
+/******/ 		if (!(moduleId in __webpack_modules__)) {
+/******/ 			delete __webpack_module_cache__[moduleId];
+/******/ 			var e = new Error("Cannot find module '" + moduleId + "'");
+/******/ 			e.code = 'MODULE_NOT_FOUND';
+/******/ 			throw e;
+/******/ 		}
 /******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
 /******/ 	
 /******/ 		// Return the exports of the module
@@ -153,19 +159,24 @@ __webpack_require__.r(__webpack_exports__);
 
 // Add the function to the String prototype
 String.prototype.toTitleCaps = _string_prototypes_js__WEBPACK_IMPORTED_MODULE_3__["default"];
-const transformText = (value, event) => {
-  //   console.log("RUNS");
-  //   console.log(value);
-  //   console.log(event);
 
-  // Get the block's ID.
-  const selectedBlockClientId = wp.data.select("core/block-editor").getSelectedBlockClientId();
+/**
+ * Transform the currently selected RichText substring and keep it selected.
+ * Uses RichText slice/remove/insert so inline formats (e.g. links) are preserved.
+ */
+const transformText = (value, onChange, transformType) => {
+  // console.log("transformText called");
+  // console.log("Current RichText value:", value);
+  // console.log("Requested transform:", transformType);
 
-  // Get the transform type.
-  const transformType = event.target.dataset.srTtt;
+  // Require a valid transform and a non-empty selection range.
+  if (!transformType || value.start === undefined || value.end === undefined || value.start === value.end) {
+    return;
+  }
 
-  // Extract the substring to be transformed.
-  let transformedString = value.text.substring(value.start, value.end);
+  // Extract the selected rich text value so inline formats (like links) remain intact.
+  const selectedValue = (0,_wordpress_rich_text__WEBPACK_IMPORTED_MODULE_2__.slice)(value, value.start, value.end);
+  let transformedString = selectedValue.text;
   if ("titlecaps" === transformType) {
     transformedString = transformedString.toTitleCaps();
   }
@@ -176,14 +187,29 @@ const transformText = (value, event) => {
     transformedString = transformedString.toLowerCase();
   }
 
-  // Construct the new text with the transformed substring.
-  const newText = value.text.substring(0, value.start) + transformedString + value.text.substring(value.end);
+  // Keep selected formatting metadata while swapping in transformed text.
+  const transformedSelectedValue = {
+    ...selectedValue,
+    text: transformedString
+  };
 
-  // Run the update.
-  wp.data.dispatch("core/block-editor").updateBlockAttributes(selectedBlockClientId, {
-    content: newText
+  // Replace only the selected range in the full RichText value.
+  const valueWithoutSelection = (0,_wordpress_rich_text__WEBPACK_IMPORTED_MODULE_2__.remove)(value, value.start, value.end);
+  const nextValue = (0,_wordpress_rich_text__WEBPACK_IMPORTED_MODULE_2__.insert)(valueWithoutSelection, transformedSelectedValue, value.start, value.start);
+  const selectionEnd = value.start + transformedString.length;
+
+  // Push updated value while restoring the transformed range selection.
+  onChange({
+    ...nextValue,
+    start: value.start,
+    end: selectionEnd,
+    activeFormats: value.activeFormats
   });
 };
+
+/**
+ * Toolbar dropdown UI for choosing a text case transformation.
+ */
 const TextTransformButton = ({
   isActive,
   onChange,
@@ -199,26 +225,37 @@ const TextTransformButton = ({
       onClick: onToggle,
       "aria-expanded": isOpen
     }),
-    renderContent: () => /*#__PURE__*/React.createElement(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.ToolbarGroup, null, /*#__PURE__*/React.createElement(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.ToolbarButton, {
+    renderContent: ({
+      onClose
+    }) => /*#__PURE__*/React.createElement(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.ToolbarGroup, null, /*#__PURE__*/React.createElement(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.ToolbarButton, {
       icon: "editor-ltr",
-      "data-sr-ttt": "titlecaps",
       title: "Title Caps",
       text: "Title Caps",
-      onClick: event => transformText(value, event),
+      onMouseDown: event => event.preventDefault(),
+      onClick: _event => {
+        transformText(value, onChange, "titlecaps");
+        onClose();
+      },
       isActive: isActive
     }), /*#__PURE__*/React.createElement(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.ToolbarButton, {
       icon: "arrow-up-alt",
-      "data-sr-ttt": "uppercase",
       title: "Uppercase",
       text: "Uppercase",
-      onClick: event => transformText(value, event),
+      onMouseDown: event => event.preventDefault(),
+      onClick: _event => {
+        transformText(value, onChange, "uppercase");
+        onClose();
+      },
       isActive: isActive
     }), /*#__PURE__*/React.createElement(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.ToolbarButton, {
       icon: "arrow-down-alt",
-      "data-sr-ttt": "lowercase",
       title: "Lowercase",
       text: "Lowercase",
-      onClick: event => transformText(value, event),
+      onMouseDown: event => event.preventDefault(),
+      onClick: _event => {
+        transformText(value, onChange, "lowercase");
+        onClose();
+      },
       isActive: isActive
     }))
   })));
